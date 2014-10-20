@@ -7,41 +7,45 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-
+#include <vtkSTLReader.h>
 
 vtkActor* GetBooleanOperationActor( double x, int operation )
 {
   double centerSeparation = 0.15;
+
+  vtkSmartPointer<vtkSTLReader> reader =
+          vtkSmartPointer<vtkSTLReader>::New();
+  reader->SetFileName("sphere-dilated.stl");
+
   vtkSmartPointer<vtkSphereSource> sphere1 =
     vtkSmartPointer<vtkSphereSource>::New();
-  sphere1->SetCenter(-centerSeparation + x, 0.0, 0.0);
-
-  vtkSmartPointer<vtkSphereSource> sphere2 =
-    vtkSmartPointer<vtkSphereSource>::New();
-  sphere2->SetCenter(  centerSeparation + x, 0.0, 0.0);
+  sphere1->SetThetaResolution(50);
+  sphere1->SetPhiResolution(50);
+  sphere1->SetRadius(2.5);
 
   vtkSmartPointer<vtkBooleanOperationPolyDataFilter> boolFilter =
     vtkSmartPointer<vtkBooleanOperationPolyDataFilter>::New();
   boolFilter->SetOperation( operation );
-  boolFilter->SetInputConnection( 0, sphere1->GetOutputPort() );
-  boolFilter->SetInputConnection( 1, sphere2->GetOutputPort() );
+  boolFilter->SetInputConnection(0, reader->GetOutputPort());
+  boolFilter->SetInputConnection(1, sphere1->GetOutputPort());
 
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInputConnection( boolFilter->GetOutputPort( 0 ) );
+  mapper->SetInputConnection(boolFilter->GetOutputPort());
   mapper->ScalarVisibilityOff();
 
   vtkActor *actor = vtkActor::New();
-  actor->SetMapper( mapper );
+  actor->SetMapper(mapper);
+  actor->SetPosition(-centerSeparation + x, 0.0, 0.0);
 
   return actor;
 }
-
 
 int main(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
+
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer( renderer );
@@ -51,21 +55,22 @@ int main(int argc, char* argv[])
   renWinInteractor->SetRenderWindow( renWin );
 
   vtkActor *unionActor =
-    GetBooleanOperationActor( -2.0, vtkBooleanOperationPolyDataFilter::VTK_UNION );
+    GetBooleanOperationActor(-10.0, vtkBooleanOperationPolyDataFilter::VTK_UNION);
   renderer->AddActor( unionActor );
   unionActor->Delete();
 
   vtkActor *intersectionActor =
-    GetBooleanOperationActor(  0.0, vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION );
+    GetBooleanOperationActor(0.0, vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION);
   renderer->AddActor( intersectionActor );
   intersectionActor->Delete();
 
   vtkActor *differenceActor =
-    GetBooleanOperationActor(  2.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE );
+    GetBooleanOperationActor(10.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE);
   renderer->AddActor( differenceActor );
   differenceActor->Delete();
 
-  vtkSmartPointer<vtkInteractorStyleTrackballCamera> interactorStyle = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+  vtkSmartPointer<vtkInteractorStyleTrackballCamera> interactorStyle =
+          vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
   renWinInteractor->SetInteractorStyle(interactorStyle);
 
   renWin->Render();
