@@ -7,6 +7,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkSTLWriter.h>
 
 
 vtkActor* GetBooleanOperationActor( double x, int operation )
@@ -31,6 +32,12 @@ vtkActor* GetBooleanOperationActor( double x, int operation )
   mapper->SetInputConnection( boolFilter->GetOutputPort( 0 ) );
   mapper->ScalarVisibilityOff();
 
+  vtkSmartPointer<vtkSTLWriter> writ = vtkSmartPointer<vtkSTLWriter>::New();
+  writ->SetInputConnection(boolFilter->GetOutputPort());
+  writ->SetFileName("out.stl");
+  writ->SetFileTypeToBinary();
+  writ->Write();
+
   vtkActor *actor = vtkActor::New();
   actor->SetMapper( mapper );
 
@@ -50,15 +57,15 @@ int main(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renWinInteractor->SetRenderWindow( renWin );
 
-  vtkActor *unionActor =
-    GetBooleanOperationActor( -2.0, vtkBooleanOperationPolyDataFilter::VTK_UNION );
-  renderer->AddActor( unionActor );
-  unionActor->Delete();
+//  vtkActor *unionActor =
+//    GetBooleanOperationActor( -2.0, vtkBooleanOperationPolyDataFilter::VTK_UNION );
+//  renderer->AddActor( unionActor );
+//  unionActor->Delete();
 
-  vtkActor *intersectionActor =
-    GetBooleanOperationActor(  0.0, vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION );
-  renderer->AddActor( intersectionActor );
-  intersectionActor->Delete();
+//  vtkActor *intersectionActor =
+//    GetBooleanOperationActor(  0.0, vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION );
+//  renderer->AddActor( intersectionActor );
+//  intersectionActor->Delete();
 
   vtkActor *differenceActor =
     GetBooleanOperationActor(  2.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE );
