@@ -15,13 +15,13 @@ vtkActor* GetBooleanOperationActor( double x, int operation )
 
   vtkSmartPointer<vtkSTLReader> reader =
           vtkSmartPointer<vtkSTLReader>::New();
-  reader->SetFileName("sphere-dilated.stl");
+  reader->SetFileName("out.stl");
 
   vtkSmartPointer<vtkSphereSource> sphere1 =
     vtkSmartPointer<vtkSphereSource>::New();
   sphere1->SetThetaResolution(50);
   sphere1->SetPhiResolution(50);
-  sphere1->SetRadius(2.5);
+  sphere1->SetCenter(2,0,0);
 
   vtkSmartPointer<vtkBooleanOperationPolyDataFilter> boolFilter =
     vtkSmartPointer<vtkBooleanOperationPolyDataFilter>::New();
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
   renWinInteractor->SetRenderWindow( renWin );
 
   vtkActor *unionActor =
-    GetBooleanOperationActor(-10.0, vtkBooleanOperationPolyDataFilter::VTK_UNION);
+    GetBooleanOperationActor(-3.0, vtkBooleanOperationPolyDataFilter::VTK_UNION);
   renderer->AddActor( unionActor );
   unionActor->Delete();
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   intersectionActor->Delete();
 
   vtkActor *differenceActor =
-    GetBooleanOperationActor(10.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE);
+    GetBooleanOperationActor(3.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE);
   renderer->AddActor( differenceActor );
   differenceActor->Delete();
 
